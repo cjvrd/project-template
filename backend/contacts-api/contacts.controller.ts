@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ContactService } from "./contacts.service";
 import { z } from "zod";
 
@@ -15,16 +15,16 @@ const zContactReq = z.object({
 export type ContactReq = z.infer<typeof zContactReq>;
 
 export const ContactController = {
-  getContacts: async (req: Request, res: Response) => {
+  getContacts: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const contacts = await ContactService.getContacts();
       res.json(contacts);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch contacts" });
+      next(error);
     }
   },
 
-  addContact: async (req: Request, res: Response) => {
+  addContact: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = zContactReq.safeParse(req.body);
       if (!parsed.success) {
@@ -34,27 +34,27 @@ export const ContactController = {
       const result = await ContactService.addContact(req.body);
       res.status(201).json(result);
     } catch (error) {
-      res.status(500).json({ error: "Failed to add contact" });
+      next(error);
     }
   },
 
-  deleteContact: async (req: Request, res: Response) => {
+  deleteContact: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await ContactService.deleteContact(req.params.id);
       if (!result) return res.status(404).json({ error: "Contact not found" });
       res.status(200).json(result);
     } catch (error) {
-      res.status(500).json({ error: "Failed to delete contact" });
+      next(error);
     }
   },
 
-  verifyContact: async (req: Request, res: Response) => {
+  verifyContact: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await ContactService.verifyContact(req.params.id);
       if (!result) return res.status(404).json({ error: "Contact not found" });
       res.status(200).json(result);
     } catch (error) {
-      res.status(500).json({ error: "Failed to verify contact" });
+      next(error);
     }
   },
 };

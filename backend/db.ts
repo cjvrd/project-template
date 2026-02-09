@@ -4,11 +4,11 @@ import { DB } from "./types";
 
 const dialect = new PostgresDialect({
   pool: new Pool({
-    database: "postgres",
-    host: "db",
-    user: "postgres",
-    password: "postgres",
-    port: 5432,
+    database: process.env.DB_NAME || "postgres",
+    host: process.env.DB_HOST || "db",
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    port: Number(process.env.DB_PORT) || 5432,
     max: 10,
   }),
 });

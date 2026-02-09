@@ -1,14 +1,27 @@
 import express from "express";
 import cors from "cors";
+import pinoHttp from "pino-http";
 import contactsRouter from "./contacts-api/contacts.routes";
+import { errorHandler } from "./middleware/error-handler";
+import { logger } from "./logger";
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 
+app.use(pinoHttp({ logger }));
 app.use(express.json());
 app.use(cors());
+
+// Health check
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.use("/contacts", contactsRouter);
 
+// Centralized error handler (must be registered after routes)
+app.use(errorHandler);
+
 app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
+  logger.info(`App listening on port ${port}`);
 });
