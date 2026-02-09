@@ -7,7 +7,7 @@ export const ContactService = {
   addContact: async (contact: ContactReq) =>
     ContactRepository.createNewContact(contact),
 
-  deleteContact: async (id: string) => ContactRepository.deleteContact(id),
+  deleteContact: async (id: number) => ContactRepository.deleteContact(id),
 
-  verifyContact: async (id: string) => ContactRepository.verifyContact(id),
+  verifyContact: async (id: number) => ContactRepository.verifyContact(id),
 };

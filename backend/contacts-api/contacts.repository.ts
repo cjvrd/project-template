@@ -23,19 +23,19 @@ export const ContactRepository = {
       .returningAll()
       .executeTakeFirst(),
 
-  deleteContact: async (id: string) =>
+  deleteContact: async (id: number) =>
     db
       .updateTable("Contact")
       .set({ status: "DELETED", updated_time: new Date() })
-      .where("id", "=", Number(id))
+      .where("id", "=", id)
       .returningAll()
       .executeTakeFirst(),
 
-  verifyContact: async (id: string) =>
+  verifyContact: async (id: number) =>
     db
       .updateTable("Contact")
       .set({ verified: true, updated_time: new Date() })
-      .where("id", "=", Number(id))
+      .where("id", "=", id)
       .returningAll()
       .executeTakeFirst(),
 };
