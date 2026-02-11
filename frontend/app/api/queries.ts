@@ -1,18 +1,8 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { API_URL } from "./constants";
+import type { Contact } from "@project-template/shared";
 
-export type Contact = {
-  id: number;
-  created_time: string | Date;
-  updated_time: string | Date;
-  status: "ENABLED" | "DISABLED" | "DELETED";
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  notes: string | null;
-  verified: boolean;
-};
+export type { Contact } from "@project-template/shared";
 
 const ContactQueries = {
   getAllContacts: () =>
@@ -20,10 +10,11 @@ const ContactQueries = {
       queryKey: ["contacts"],
       queryFn: async (): Promise<Contact[]> => {
         const response = await fetch(`${API_URL}/contacts`);
-        if (response.status !== 200)
-          throw new Error("Failed to get contacts list");
-        const contacts: Contact[] = await response.json();
-        return contacts;
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          throw new Error(body?.error || "Failed to get contacts list");
+        }
+        return response.json();
       },
     }),
 };

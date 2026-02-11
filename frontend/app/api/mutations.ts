@@ -1,22 +1,21 @@
 import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { GlobalQueryClient } from "~/query-client";
-import type { Contact } from "./queries";
+import type { ContactFormData } from "@project-template/shared";
 import { API_URL } from "./constants";
-
-//id and created time are auto generated in DB
-//updated time not necessary for a new contact
-type NewContact = Omit<Contact, "id" | "created_time" | "updated_time">;
 
 const ContactMutations = {
   addContact: () => {
     return mutationOptions({
-      mutationFn: async (contact: NewContact) => {
+      mutationFn: async (contact: ContactFormData) => {
         const response = await fetch(`${API_URL}/contacts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(contact),
         });
-        if (response.status !== 201) throw new Error("Failed to add contact");
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          throw new Error(body?.error || "Failed to add contact");
+        }
         return response.json();
       },
       onSuccess: () => {
@@ -32,8 +31,10 @@ const ContactMutations = {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "DELETED" }),
         });
-        if (response.status !== 200)
-          throw new Error("Failed to delete contact");
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          throw new Error(body?.error || "Failed to delete contact");
+        }
         return response.ok;
       },
       onSuccess: () => {
@@ -49,8 +50,10 @@ const ContactMutations = {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ verified: true }),
         });
-        if (response.status !== 200)
-          throw new Error("Failed to verify contact");
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          throw new Error(body?.error || "Failed to verify contact");
+        }
         return response.json();
       },
       onSuccess: () => {

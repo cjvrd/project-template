@@ -2,10 +2,16 @@ import { useGetAllContacts } from "~/api/queries";
 import { useDeleteContact, useVerifyContact } from "~/api/mutations";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
-import { UserIcon, CheckCircle2Icon, MailIcon, PhoneIcon } from "lucide-react";
+import {
+  UserIcon,
+  CheckCircle2Icon,
+  MailIcon,
+  PhoneIcon,
+  AlertCircleIcon,
+} from "lucide-react";
 
 export default function ContactList() {
-  const { data: contacts, status } = useGetAllContacts();
+  const { data: contacts, status, error, refetch } = useGetAllContacts();
   const deleteContact = useDeleteContact();
   const verifyContact = useVerifyContact();
 
@@ -15,6 +21,24 @@ export default function ContactList() {
       <div className="flex items-center justify-center py-12">
         <Spinner className="size-6" />
         <span className="ml-2 text-muted-foreground">Loading contacts…</span>
+      </div>
+    );
+  }
+
+  // Error state
+  if (status === "error") {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <h1 className="text-3xl font-semibold text-center">Contact List</h1>
+        <div className="mt-8 flex flex-col items-center gap-4 rounded border border-destructive/50 bg-destructive/5 p-8">
+          <AlertCircleIcon className="size-8 text-destructive" />
+          <p className="text-destructive font-medium">
+            {error.message || "Failed to load contacts"}
+          </p>
+          <Button variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
+        </div>
       </div>
     );
   }

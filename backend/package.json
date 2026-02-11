@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "tsx watch ./server.ts",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -30,6 +31,7 @@
     "pino-http": "^11.0.0",
     "prisma": "6.16.0",
     "prisma-kysely": "^2.2.1",
+    "@project-template/shared": "*",
     "zod": "^4.1.12"
   },
   "devDependencies": {

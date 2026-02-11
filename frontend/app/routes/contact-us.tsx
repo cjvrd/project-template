@@ -12,43 +12,31 @@ import {
 } from "~/components/ui/form";
 import { useAddContact } from "~/api/mutations";
 import { useForm } from "react-hook-form";
-type FormValues = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  notes?: string;
-};
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  contactFormSchema,
+  type ContactFormData,
+} from "@project-template/shared";
 
 export default function ContactUs() {
   const addContactMutation = useAddContact();
 
-  const form = useForm<FormValues>({
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
     mode: "onTouched",
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       email: "",
       phone: "",
-      notes: "",
+      notes: null,
     },
   });
 
-  const onSubmit = (values: FormValues) => {
-    addContactMutation.mutate(
-      {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        email: values.email,
-        phone: values.phone,
-        notes: values.notes ?? "",
-        status: "ENABLED",
-        verified: false,
-      },
-      {
-        onSuccess: () => form.reset(),
-      }
-    );
+  const onSubmit = (values: ContactFormData) => {
+    addContactMutation.mutate(values, {
+      onSuccess: () => form.reset(),
+    });
   };
 
   return (
@@ -64,7 +52,7 @@ export default function ContactUs() {
                 Thanks for reaching out!
               </h2>
               <p className="text-center">
-                We’ve received your message and will get back to you soon.
+                We've received your message and will get back to you soon.
               </p>
             </div>
           ) : (
@@ -75,11 +63,7 @@ export default function ContactUs() {
               >
                 <FormField
                   control={form.control}
-                  name="firstName"
-                  rules={{
-                    required: "First name is required",
-                    maxLength: { value: 20, message: "Max 20 characters" },
-                  }}
+                  name="first_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="p-1">First Name</FormLabel>
@@ -88,7 +72,6 @@ export default function ContactUs() {
                           placeholder="First name"
                           disabled={addContactMutation.isPending}
                           {...field}
-                          maxLength={20}
                         />
                       </FormControl>
                       <FormMessage />
@@ -98,11 +81,7 @@ export default function ContactUs() {
 
                 <FormField
                   control={form.control}
-                  name="lastName"
-                  rules={{
-                    required: "Last name is required",
-                    maxLength: { value: 20, message: "Max 20 characters" },
-                  }}
+                  name="last_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="p-1">Last Name</FormLabel>
@@ -111,7 +90,6 @@ export default function ContactUs() {
                           placeholder="Last name"
                           disabled={addContactMutation.isPending}
                           {...field}
-                          maxLength={20}
                         />
                       </FormControl>
                       <FormMessage />
@@ -122,13 +100,6 @@ export default function ContactUs() {
                 <FormField
                   control={form.control}
                   name="email"
-                  rules={{
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Enter a valid email address",
-                    },
-                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="p-1">Email</FormLabel>
@@ -148,13 +119,6 @@ export default function ContactUs() {
                 <FormField
                   control={form.control}
                   name="phone"
-                  rules={{
-                    required: "Phone number is required",
-                    pattern: {
-                      value: /^(?:\+61|0)4(?:[ -]?\d){8}$/,
-                      message: "Enter a valid phone number",
-                    },
-                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="p-1">Phone</FormLabel>
@@ -162,7 +126,6 @@ export default function ContactUs() {
                         <Input
                           placeholder="Phone number"
                           inputMode="tel"
-                          pattern="^[+]?[-()\\d\\s]+$"
                           disabled={addContactMutation.isPending}
                           {...field}
                         />
@@ -175,12 +138,6 @@ export default function ContactUs() {
                 <FormField
                   control={form.control}
                   name="notes"
-                  rules={{
-                    maxLength: {
-                      value: 1000,
-                      message: "Message is too long",
-                    },
-                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="p-1">Notes</FormLabel>
@@ -191,6 +148,7 @@ export default function ContactUs() {
                           rows={3}
                           disabled={addContactMutation.isPending}
                           {...field}
+                          value={field.value ?? ""}
                         />
                       </FormControl>
                       <FormMessage />
@@ -200,7 +158,7 @@ export default function ContactUs() {
 
                 {addContactMutation.error ? (
                   <p className="text-destructive text-sm">
-                    {(addContactMutation.error as Error).message ||
+                    {addContactMutation.error.message ||
                       "Failed to submit. Please try again."}
                   </p>
                 ) : null}

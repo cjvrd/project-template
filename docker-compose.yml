@@ -8,10 +8,18 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -22,13 +30,21 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: postgres
       PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
     command: >-
-      sh -c "until npx prisma migrate deploy; do echo 'waiting for db...'; sleep 2; done; npm start"
+      sh -c "npx prisma migrate deploy && npm start"
     develop:
       watch:
         - action: sync
           path: ./backend
-          target: /app
+          target: /app/backend
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./shared
+          target: /app/shared
           ignore:
             - node_modules/
         - action: rebuild
@@ -36,18 +52,29 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
     ports:
       - "5173:5173"
     environment:
       VITE_API_URL: http://localhost:3000
-    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+    command: npm run dev -w frontend -- --host 0.0.0.0
     develop:
       watch:
         - action: sync
           path: ./frontend
-          target: /app
+          target: /app/frontend
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./shared
+          target: /app/shared
           ignore:
             - node_modules/
         - action: rebuild
           path: ./frontend/package.json
+
+volumes:
+  pgdata:

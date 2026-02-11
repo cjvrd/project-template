@@ -1,5 +1,5 @@
-import { db } from "../db";
-import { ContactReq } from "./contacts.controller";
+import { db } from "@/db";
+import type { ContactFormData } from "@project-template/shared";
 
 export const ContactRepository = {
   getAllContacts: async () =>
@@ -9,7 +9,7 @@ export const ContactRepository = {
       .where("status", "=", "ENABLED")
       .execute(),
 
-  createNewContact: async (contact: ContactReq) =>
+  createNewContact: async (contact: ContactFormData) =>
     db
       .insertInto("Contact")
       .values({

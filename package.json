@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "workspaces": ["shared", "backend", "frontend"],
+  "scripts": {
+    "install:all": "npm install",
+    "dev": "docker compose up --build",
+    "dev:watch": "docker compose watch",
+    "dev:down": "docker compose down",
+    "dev:reset": "docker compose down -v && docker compose up --build",
+    "build": "npm run build -w frontend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "lint:fix": "npm run lint:fix -w backend && npm run lint:fix -w frontend",
+    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend",
+    "format": "npm run format -w backend && npm run format -w frontend",
+    "format:check": "npm run format:check -w backend && npm run format:check -w frontend",
+    "db:generate": "npx -w backend prisma generate",
+    "db:migrate": "npx -w backend prisma migrate dev",
+    "db:migrate:deploy": "npx -w backend prisma migrate deploy",
+    "db:studio": "npx -w backend prisma studio"
+  }
+}

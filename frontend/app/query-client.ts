@@ -6,4 +6,15 @@ import { QueryClient } from "@tanstack/react-query";
  * Should only be used outside of React components.
  * if you need to use it inside a React component, use the `useQueryClient` hook.
  */
-export const GlobalQueryClient = new QueryClient();
+export const GlobalQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
